@@ -1,7 +1,7 @@
 package algoritmo
 
 import algoritmo.data.Estado
-import algoritmo.data.funcaoSucessor
+import algoritmo.extension.funcaoSucessor
 import algoritmo.extension.toEstado
 import java.util.*
 
