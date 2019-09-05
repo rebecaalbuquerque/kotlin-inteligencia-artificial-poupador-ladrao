@@ -47,3 +47,43 @@ fun Estado.funcaoSucessor(): List<Acao> {
 
     return coordenadas.map { it.first }
 }
+
+/**
+ * Função que retorna todos os elementos apenas da visão de cima do poupador
+ * */
+fun Estado.visaoPoupadorCima(): IntArray {
+    return visaoIdentificacao.dropLast(14).toIntArray()
+}
+
+/**
+ * Função que retorna todos os elementos apenas da visão da direita do poupador
+ * */
+fun Estado.visaoPoupadorDireita(): IntArray {
+
+   return intArrayOf(
+           visaoIdentificacao[3], visaoIdentificacao[4], visaoIdentificacao[8], visaoIdentificacao[9],
+           visaoIdentificacao[12], visaoIdentificacao[13], visaoIdentificacao[17], visaoIdentificacao[18],
+           visaoIdentificacao[22], visaoIdentificacao[23]
+   )
+
+}
+
+/**
+ * Função que retorna todos os elementos apenas da visão de baixo do poupador
+ * */
+fun Estado.visaoPoupadorBaixo(): IntArray {
+    return visaoIdentificacao.drop(13).toIntArray()
+}
+
+/**
+ * Função que retorna todos os elementos apenas da visão da esquerda do poupador
+ * */
+fun Estado.visaoPoupadorEsquerda(): IntArray {
+
+    return intArrayOf(
+            visaoIdentificacao[0], visaoIdentificacao[1], visaoIdentificacao[5], visaoIdentificacao[6],
+            visaoIdentificacao[10], visaoIdentificacao[11], visaoIdentificacao[14], visaoIdentificacao[15],
+            visaoIdentificacao[19], visaoIdentificacao[20]
+    )
+
+}

@@ -1,8 +1,9 @@
 package algoritmo
 
 import algoritmo.data.Estado
-import algoritmo.extension.funcaoSucessor
-import algoritmo.extension.toEstado
+import algoritmo.enums.Acao
+import algoritmo.enums.PercepcaoVisao
+import algoritmo.extension.*
 import java.util.*
 
 class Poupador : ProgramaPoupador() {
@@ -27,11 +28,51 @@ class Poupador : ProgramaPoupador() {
         println("------------------------------------\n")
 
         //return (Math.random() * 5).toInt()
+        //acaoBaseadoEmCusto()
 
         if (acoes.isEmpty())
             return 0
 
-        return acao.value
+        //return acao.value
+        return acaoBaseadoEmCusto().value
+    }
+
+    private fun acaoBaseadoEmCusto(): Acao {
+        val map = mutableMapOf<Acao, Int>()
+
+        // Calculando escolha das ações baseando-se apenas nas moedas (por enquanto)
+        estadoAtual.funcaoSucessor().forEach { mAcao ->
+
+            when (mAcao) {
+                Acao.FICAR_PARADO -> { }
+
+                Acao.MOVER_CIMA -> {
+                    val custoMoedas = estadoAtual.visaoPoupadorCima().filter { it == PercepcaoVisao.MOEDA.value }.size * (-800)
+                    map[Acao.MOVER_CIMA] = custoMoedas
+                }
+
+                Acao.MOVER_BAIXO -> {
+                    val custoMoedas = estadoAtual.visaoPoupadorBaixo().filter { it == PercepcaoVisao.MOEDA.value }.size * (-800)
+                    map[Acao.MOVER_BAIXO] = custoMoedas
+                }
+
+                Acao.MOVER_DIREITA -> {
+                    val custoMoedas = estadoAtual.visaoPoupadorDireita().filter { it == PercepcaoVisao.MOEDA.value }.size * (-800)
+                    map[Acao.MOVER_DIREITA] = custoMoedas
+                }
+
+                Acao.MOVER_ESQUERDA -> {
+                    val custoMoedas = estadoAtual.visaoPoupadorEsquerda().filter { it == PercepcaoVisao.MOEDA.value }.size * (-800)
+                    map[Acao.MOVER_ESQUERDA] = custoMoedas
+                }
+            }
+
+        }
+
+        println()
+
+        return map.maxBy { it.value }?.key ?: Acao.FICAR_PARADO
+
     }
 
 }
