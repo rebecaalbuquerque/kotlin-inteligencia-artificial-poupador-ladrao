@@ -37,18 +37,18 @@ guardam informações visuais da parte do mundo à sua volta, dentro de um raio 
 * A Fig. 2 representa a visão atual dos agentes (visão 5 X 5). Deve-se notar que o agente (poupador ou ladrão) está representado pela célula de cor branca 
 nessas figuras. Já as células em preto e em cinza representam as outras células que o agente pode perceber; os quadros em cinza representam as posições 
 para onde o agente pode se locomover. Além das percepções visuais, o agente-poupador recebe também dos seus sensores informações a respeito 
-    - (i) da quantidade de moedas em mãos e quantidade já depositadas; 
-    - (ii) da coordenada (x,y) da posição atual que ocupa na matriz do labirinto; 
-    - (iii) número de jogadas imunes. 
-    - (iv) além das percepções visuais, ele recebe também do ambiente informação a respeito de possíveis marcas olfativas (feromônio) deixadas 
-    recentemente pelo agente-poupador e pelo ladrão no seu raio de visualização olfativa atual (ver Fig. 3).
+    - (i) da quantidade de moedas em mãos e quantidade já depositadas
+    - (ii) da coordenada (x,y) da posição atual que ocupa na matriz do labirinto
+    - (iii) número de jogadas imunes
+    - (iv) das percepções visuais
+    - (v) de possíveis marcas olfativas (feromônio) deixadas recentemente pelo agente-poupador e pelo ladrão no seu raio de visualização olfativa atual (ver Fig. 3).
 
 <p align="center">
   <br/>
   <img height="267" width="384" src="https://user-images.githubusercontent.com/41158713/64479554-328ada80-d18f-11e9-81b2-8d8462857397.png">
   <br/>
   <b>Figura 2 - Representação da visão do agente-poupador – ver possíveis valores na Tab. 1</b>
-  <br>
+  <br/>
 </p>
 
 <p align="center">
@@ -56,8 +56,10 @@ para onde o agente pode se locomover. Além das percepções visuais, o agente-p
   <img height="241" width="312" src="https://user-images.githubusercontent.com/41158713/64479555-34549e00-d18f-11e9-8a53-5caa1e532ea2.png">
   <br/>
   <b>Figura 3 - Representação do olfato dos agentes – ver possíveis valores na Tab. 2</b>
-  <br>
+  <br/>
 </p>
+
+<br/>
 
 | Código   | Significado   |
 | :------: |:-------------:|
