@@ -4,13 +4,17 @@ import algoritmo.data.Estado
 import algoritmo.enums.Acao
 import algoritmo.enums.PercepcaoVisao.*
 import algoritmo.extension.*
+import java.awt.Point
 
 class Poupador : ProgramaPoupador() {
 
     private lateinit var estadoAtual: Estado
+    private val localizacaoMoedas: MutableList<Point> = mutableListOf()
 
     override fun acao(): Int {
         estadoAtual = sensor.toEstado()
+        atualizarMoedasEncontradas()
+
         return acaoBaseadaNoCusto().value
     }
 
@@ -25,8 +29,7 @@ class Poupador : ProgramaPoupador() {
         estadoAtual.funcaoSucessor().forEach { mAcao ->
 
             when (mAcao) {
-                Acao.FICAR_PARADO -> {
-                }
+                Acao.FICAR_PARADO -> { }
 
                 Acao.MOVER_CIMA -> map[Acao.MOVER_CIMA] = calcularCusto(estadoAtual.visaoPoupadorCima())
 
@@ -72,6 +75,37 @@ class Poupador : ProgramaPoupador() {
             0
 
         return custoMoeda + custoBanco + custoPastilha
+    }
+
+    private fun atualizarMoedasEncontradas() {
+
+        estadoAtual.getIndicesMoedas().forEach { indice ->
+            when (indice) {
+                in 0..4 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 0, 4, -2))
+
+                in 5..9 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 5, 9, -1))
+
+                in 10..14 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 10, 14, 0))
+
+                in 15..19 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 15, 19, 1))
+
+                in 20..24 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 20, 24, 2))
+            }
+        }
+
+    }
+
+    private fun calcularPosicaoMoeda(indice: Int, from: Int, to: Int, helper: Int): Point {
+        var count = -3
+        var novoX = 0
+
+        for(i in from..to) {
+            count++
+            if(indice == i) novoX = estadoAtual.posicao.x + count
+        }
+
+        return Point(novoX, estadoAtual.posicao.y + helper)
+
     }
 
 }

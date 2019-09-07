@@ -60,11 +60,11 @@ fun Estado.visaoPoupadorCima(): IntArray {
  * */
 fun Estado.visaoPoupadorDireita(): IntArray {
 
-   return intArrayOf(
-           visaoIdentificacao[3], visaoIdentificacao[4], visaoIdentificacao[8], visaoIdentificacao[9],
-           visaoIdentificacao[12], visaoIdentificacao[13], visaoIdentificacao[17], visaoIdentificacao[18],
-           visaoIdentificacao[22], visaoIdentificacao[23]
-   )
+    return intArrayOf(
+            visaoIdentificacao[3], visaoIdentificacao[4], visaoIdentificacao[8], visaoIdentificacao[9],
+            visaoIdentificacao[12], visaoIdentificacao[13], visaoIdentificacao[17], visaoIdentificacao[18],
+            visaoIdentificacao[22], visaoIdentificacao[23]
+    )
 
 }
 
@@ -86,4 +86,25 @@ fun Estado.visaoPoupadorEsquerda(): IntArray {
             visaoIdentificacao[19], visaoIdentificacao[20]
     )
 
+}
+
+/**
+ * Retorna um array que contém os indices de todas as moedas da percepção atual
+ * */
+fun Estado.getIndicesMoedas(): IntArray {
+    val visaoIdentificacaoComPoupador = visaoIdentificacao.copyOf().toMutableList()
+            .apply { add(12, Int.MAX_VALUE) }
+
+    val indices = visaoIdentificacaoComPoupador.mapIndexed { i, value ->
+        var index: Int = Int.MAX_VALUE
+
+        if (value == PercepcaoVisao.MOEDA.value)
+            index = i
+
+        index
+    }
+
+    indices.toMutableList().removeIf { it == Int.MAX_VALUE }
+
+    return indices.toIntArray()
 }
