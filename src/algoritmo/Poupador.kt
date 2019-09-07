@@ -13,14 +13,15 @@ class Poupador : ProgramaPoupador() {
 
     override fun acao(): Int {
         estadoAtual = sensor.toEstado()
-        atualizarMoedasEncontradas()
+        val acao = acaoBaseadaNoCusto()
+        atualizarMoedasEncontradas(acao)
 
-        return acaoBaseadaNoCusto().value
+        return acao.value
     }
 
     /**
      * Essa função gera um HashMap<Acao, Int> que consta as possíveis ações que o poupador pode realizar na jogada atual
-     * e seus respectivos custos. A ação que será tomada é a ação que possuir o menor custo
+     * e seus respectivos custos. A ação que será tomada é a ação que possuir o menor custo.
      * */
     private fun acaoBaseadaNoCusto(): Acao {
         val map = mutableMapOf<Acao, Int>()
@@ -66,7 +67,12 @@ class Poupador : ProgramaPoupador() {
 
     }
 
+    /**
+     * Calcula o custo da percepção (de cima, de baixo, da esquerda ou da direita) do poupador. A coordenada que tiver
+     * menor custo dirá qual será a ação ideal a ser realizada.
+     * */
     private fun calcularCusto(percepcao: IntArray): Int {
+        // TODO: verificar se é assim mesmo
         val custoMoeda = percepcao.filter { it == MOEDA.value }.size * MOEDA.custo
         val custoBanco = if (estadoAtual.numeroMoedas > 10) percepcao.filter { it == BANCO.value }.size * BANCO.custo else 0
         val custoPastilha = if (estadoAtual.numeroMoedas > 10 && estadoAtual.numeroJogadasImunes < 15)
@@ -77,8 +83,30 @@ class Poupador : ProgramaPoupador() {
         return custoMoeda + custoBanco + custoPastilha
     }
 
-    private fun atualizarMoedasEncontradas() {
+    /**
+     * Atualiza na memória do poupador as moedas que ele vai encontrando e/ou coletando. Se ele encontrar novas moedas,
+     * elas são adicionadas na lista "localizacaoMoedas". Se ele coletar as moedas, elas são removidas da lista.
+     *
+     * @param acao variável que irá ajudar a calcular a próxima posição Point(X, Y) do poupador para poder determinar se
+     * existe moeda naquela posição. Se existir, a localização dela será removida da memória do poupador
+     * */
+    private fun atualizarMoedasEncontradas(acao: Acao) {
+        val proximaPosicao = Point(estadoAtual.posicao.x, estadoAtual.posicao.y)
 
+        // Descobre qual vai ser a próxima posição do poupador
+        when (acao) {
+            Acao.FICAR_PARADO -> {}
+            Acao.MOVER_CIMA -> proximaPosicao.y++
+            Acao.MOVER_BAIXO -> proximaPosicao.y--
+            Acao.MOVER_DIREITA -> proximaPosicao.x++
+            Acao.MOVER_ESQUERDA -> proximaPosicao.x--
+        }
+
+        // Se na próxima posição do poupador existir uma moeda, ele a pegará, portanto essa moeda deverá ser removida
+        // da memória do poupador
+        localizacaoMoedas.removeIfExists(proximaPosicao)
+
+        // Adicionando localização das moedas encontradas pelo poupador através das percepções visuais
         estadoAtual.getIndicesMoedas().forEach { indice ->
             when (indice) {
                 in 0..4 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 0, 4, -2))
@@ -95,16 +123,31 @@ class Poupador : ProgramaPoupador() {
 
     }
 
+    /**
+     * Função auxiliar que calcula a posição da moeda que o poupador visualizou na sua percepção visual.
+     * O count é um valor auxiliar no cálculo da posição X da moeda e poderá ser -2, -1, 1 ou 2. Se for -2 é porque a
+     * moeda está a 2 posições a esquerda do poupador, se for -1 está a 1 posição a esquerda do poupador, se for 1 está
+     * a 1 posição a direita e se for 2 está a 2 posições a direita do poupador.
+     *
+     * @param indice é a posição/index em que a moeda está no IntArray da percepção visual do poupador
+     * @param from a partir de que indice/index está sendo feito o cálculo atual
+     * @param to até que indice/index está sendo feito o cálculo atual
+     * @param helper valor auxiliar no cálculo da posição Y da moeda, se for -2 significa que a moedas está 2 posições
+     * a cima do poupador, se for -1 a 1 posição acima, se for 0 a moeda está na mesma coluna, se for 1 está 1 posição a
+     * baixo e se for 2 a moeda está 2 posições abaixo do poupador.
+     *
+     * @return Point(x,Y) da moeda localizada no IntArray da percepção visual
+     * */
     private fun calcularPosicaoMoeda(indice: Int, from: Int, to: Int, helper: Int): Point {
         var count = -3
-        var novoX = 0
+        var moedaPosicaoX = 0
 
         for(i in from..to) {
             count++
-            if(indice == i) novoX = estadoAtual.posicao.x + count
+            if(indice == i) moedaPosicaoX = estadoAtual.posicao.x + count
         }
 
-        return Point(novoX, estadoAtual.posicao.y + helper)
+        return Point(moedaPosicaoX, estadoAtual.posicao.y + helper)
 
     }
 
