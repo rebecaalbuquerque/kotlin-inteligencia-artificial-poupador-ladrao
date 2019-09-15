@@ -74,6 +74,10 @@ class Poupador : ProgramaPoupador() {
 
     }
 
+    /**
+     * Calcula o custo de uma ação e uma determinada percepção. O calculo para o custo total leva em conta o custo das
+     * percepções visuais, o custo dos lugares visitados e o custo de fugir dos ladrões
+     * */
     private fun calcularCusto(percepcao: IntArray, acao: Acao): Int {
         return calcularCustoPercepcao(percepcao) +
                 calcularCustoLugaresVisitados(acao) /*+
@@ -95,6 +99,10 @@ class Poupador : ProgramaPoupador() {
         return custoMoeda + custoBanco + custoPastilha
     }
 
+    /**
+     * Calcula o custo que uma determinada ação irá gerar se for executada verificando no HashMap de lugares visitados a
+     * quantidade de vezes que o poupador passou por um determinado lugar
+     * */
     private fun calcularCustoLugaresVisitados(acao: Acao): Int {
 
         return when (acao) {
