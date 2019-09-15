@@ -52,9 +52,7 @@ fun Estado.funcaoSucessor(): List<Acao> {
 /**
  * Função que retorna todos os elementos apenas da visão de cima do poupador
  * */
-fun Estado.visaoPoupadorCima(): IntArray {
-    return visaoIdentificacao.dropLast(14).toIntArray()
-}
+fun Estado.visaoPoupadorCima(): IntArray = visaoIdentificacao.dropLast(14).toIntArray()
 
 /**
  * Função que retorna todos os elementos apenas da visão da direita do poupador
@@ -72,9 +70,7 @@ fun Estado.visaoPoupadorDireita(): IntArray {
 /**
  * Função que retorna todos os elementos apenas da visão de baixo do poupador
  * */
-fun Estado.visaoPoupadorBaixo(): IntArray {
-    return visaoIdentificacao.drop(14).toIntArray()
-}
+fun Estado.visaoPoupadorBaixo(): IntArray = visaoIdentificacao.drop(14).toIntArray()
 
 /**
  * Função que retorna todos os elementos apenas da visão da esquerda do poupador
@@ -88,6 +84,26 @@ fun Estado.visaoPoupadorEsquerda(): IntArray {
     )
 
 }
+
+/**
+ * Função que retorna todos os elementos apenas do olfato de cima do poupador
+ * */
+fun Estado.olfatoPoupadorCima(): IntArray = ambienteOlfatoLadrao.dropLast(5).toIntArray()
+
+/**
+ * Função que retorna todos os elementos apenas do olfato da direita do poupador
+ * */
+fun Estado.olfatoPoupadorDireita(): IntArray = intArrayOf(ambienteOlfatoLadrao[2], ambienteOlfatoLadrao[4], ambienteOlfatoLadrao[7])
+
+/**
+ * Função que retorna todos os elementos apenas do olfato de baixo do poupador
+ * */
+fun Estado.olfatoPoupadorBaixo(): IntArray = ambienteOlfatoLadrao.drop(5).toIntArray()
+
+/**
+ * Função que retorna todos os elementos apenas do olfato da esquerda do poupador
+ * */
+fun Estado.olfatoPoupadorEsquerda(): IntArray = intArrayOf(ambienteOlfatoLadrao[0], ambienteOlfatoLadrao[3], ambienteOlfatoLadrao[5])
 
 /**
  * Retorna um array que contém os indices de todas as moedas da percepção atual
