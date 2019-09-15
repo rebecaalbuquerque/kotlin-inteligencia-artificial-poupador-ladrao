@@ -7,5 +7,5 @@ fun MutableList<Point>.addIfNonexistent(item: Point) {
 }
 
 fun MutableList<Point>.removeIfExists(item: Point) {
-    if(!contains(item)) remove(item)
+    if(contains(item)) remove(item)
 }

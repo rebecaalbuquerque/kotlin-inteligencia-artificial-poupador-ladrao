@@ -2,6 +2,7 @@ package algoritmo
 
 import algoritmo.data.Estado
 import algoritmo.enums.Acao
+import algoritmo.enums.Acao.*
 import algoritmo.enums.PercepcaoVisao.*
 import algoritmo.extension.*
 import java.awt.Point
@@ -9,12 +10,18 @@ import java.awt.Point
 class Poupador : ProgramaPoupador() {
 
     private lateinit var estadoAtual: Estado
+
+    // MEMORIA DO POUPADOR
+    // Moedas que o poupador vai encontrando ao longo do jogo
     private val localizacaoMoedas: MutableList<Point> = mutableListOf()
+    // Lugares e quantidade de vezes por onde o poupador passou
+    private val lugaresVisitados: MutableMap<Point, Int> = mutableMapOf()
 
     override fun acao(): Int {
         estadoAtual = sensor.toEstado()
         val acao = acaoBaseadaNoCusto()
         atualizarMoedasEncontradas(acao)
+        atualizarLugaresVisitados(estadoAtual.posicao)
 
         return acao.value
     }
@@ -26,19 +33,19 @@ class Poupador : ProgramaPoupador() {
     private fun acaoBaseadaNoCusto(): Acao {
         val map = mutableMapOf<Acao, Int>()
 
-        // Calculando escolha das possíveis ações baseando-se apenas nas moedas (por enquanto)
+        // Calculando escolha das possíveis ações
         estadoAtual.funcaoSucessor().forEach { mAcao ->
 
             when (mAcao) {
-                Acao.FICAR_PARADO -> { }
+                FICAR_PARADO -> { }
 
-                Acao.MOVER_CIMA -> map[Acao.MOVER_CIMA] = calcularCusto(estadoAtual.visaoPoupadorCima())
+                MOVER_CIMA -> map[MOVER_CIMA] = calcularCusto(estadoAtual.visaoPoupadorCima(), MOVER_CIMA)
 
-                Acao.MOVER_BAIXO -> map[Acao.MOVER_BAIXO] = calcularCusto(estadoAtual.visaoPoupadorBaixo())
+                MOVER_BAIXO -> map[MOVER_BAIXO] = calcularCusto(estadoAtual.visaoPoupadorBaixo(), MOVER_BAIXO)
 
-                Acao.MOVER_DIREITA -> map[Acao.MOVER_DIREITA] = calcularCusto(estadoAtual.visaoPoupadorDireita())
+                MOVER_DIREITA -> map[MOVER_DIREITA] = calcularCusto(estadoAtual.visaoPoupadorDireita(), MOVER_DIREITA)
 
-                Acao.MOVER_ESQUERDA -> map[Acao.MOVER_ESQUERDA] = calcularCusto(estadoAtual.visaoPoupadorEsquerda())
+                MOVER_ESQUERDA -> map[MOVER_ESQUERDA] = calcularCusto(estadoAtual.visaoPoupadorEsquerda(), MOVER_ESQUERDA)
             }
 
         }
@@ -62,17 +69,22 @@ class Poupador : ProgramaPoupador() {
         } ?: kotlin.run {
             // Se o map de ações sucessores possíveis estiver vazio, então é porque a única coisa que o poupador pode
             // fazer é ficar parado
-            Acao.FICAR_PARADO
+            FICAR_PARADO
         }
 
+    }
+
+    private fun calcularCusto(percepcao: IntArray, acao: Acao): Int {
+        return calcularCustoPercepcao(percepcao) +
+                calcularCustoLugaresVisitados(acao) /*+
+                calcularCustoMoedasEncontradas(acao)*/
     }
 
     /**
      * Calcula o custo da percepção (de cima, de baixo, da esquerda ou da direita) do poupador. A coordenada que tiver
      * menor custo dirá qual será a ação ideal a ser realizada.
      * */
-    private fun calcularCusto(percepcao: IntArray): Int {
-        // TODO: verificar se é assim mesmo
+    private fun calcularCustoPercepcao(percepcao: IntArray): Int {
         val custoMoeda = percepcao.filter { it == MOEDA.value }.size * MOEDA.custo
         val custoBanco = if (estadoAtual.numeroMoedas > 10) percepcao.filter { it == BANCO.value }.size * BANCO.custo else 0
         val custoPastilha = if (estadoAtual.numeroMoedas > 10 && estadoAtual.numeroJogadasImunes < 15)
@@ -83,6 +95,30 @@ class Poupador : ProgramaPoupador() {
         return custoMoeda + custoBanco + custoPastilha
     }
 
+    private fun calcularCustoLugaresVisitados(acao: Acao): Int {
+
+        return when (acao) {
+            FICAR_PARADO -> 0
+            MOVER_CIMA -> lugaresVisitados[estadoAtual.getProximaPosicao(MOVER_CIMA)] ?: 1
+            MOVER_BAIXO -> lugaresVisitados[estadoAtual.getProximaPosicao(MOVER_BAIXO)] ?: 1
+            MOVER_DIREITA -> lugaresVisitados[estadoAtual.getProximaPosicao(MOVER_DIREITA)] ?: 1
+            MOVER_ESQUERDA -> lugaresVisitados[estadoAtual.getProximaPosicao(MOVER_ESQUERDA)] ?: 1
+        }
+
+    }
+
+    private fun calcularCustoMoedasEncontradas(acao: Acao): Int {
+
+        return when (acao) {
+            FICAR_PARADO -> 0
+            MOVER_CIMA -> localizacaoMoedas.filter { it.y < estadoAtual.posicao.y }.size
+            MOVER_BAIXO -> localizacaoMoedas.filter { it.y > estadoAtual.posicao.y }.size
+            MOVER_DIREITA -> localizacaoMoedas.filter { it.x > estadoAtual.posicao.x }.size
+            MOVER_ESQUERDA -> localizacaoMoedas.filter { it.x < estadoAtual.posicao.x }.size
+        }.times(-1)
+
+    }
+
     /**
      * Atualiza na memória do poupador as moedas que ele vai encontrando e/ou coletando. Se ele encontrar novas moedas,
      * elas são adicionadas na lista "localizacaoMoedas". Se ele coletar as moedas, elas são removidas da lista.
@@ -91,20 +127,8 @@ class Poupador : ProgramaPoupador() {
      * existe moeda naquela posição. Se existir, a localização dela será removida da memória do poupador
      * */
     private fun atualizarMoedasEncontradas(acao: Acao) {
-        val proximaPosicao = Point(estadoAtual.posicao.x, estadoAtual.posicao.y)
-
         // Descobre qual vai ser a próxima posição do poupador
-        when (acao) {
-            Acao.FICAR_PARADO -> {}
-            Acao.MOVER_CIMA -> proximaPosicao.y++
-            Acao.MOVER_BAIXO -> proximaPosicao.y--
-            Acao.MOVER_DIREITA -> proximaPosicao.x++
-            Acao.MOVER_ESQUERDA -> proximaPosicao.x--
-        }
-
-        // Se na próxima posição do poupador existir uma moeda, ele a pegará, portanto essa moeda deverá ser removida
-        // da memória do poupador
-        localizacaoMoedas.removeIfExists(proximaPosicao)
+        val proximaPosicao = estadoAtual.getProximaPosicao(acao)
 
         // Adicionando localização das moedas encontradas pelo poupador através das percepções visuais
         estadoAtual.getIndicesMoedas().forEach { indice ->
@@ -120,6 +144,10 @@ class Poupador : ProgramaPoupador() {
                 in 20..24 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 20, 24, 2))
             }
         }
+
+        // Se na próxima posição do poupador existir uma moeda, ele a pegará, portanto essa moeda deverá ser removida
+        // da memória do poupador
+        localizacaoMoedas.removeIfExists(proximaPosicao)
 
     }
 
@@ -148,6 +176,22 @@ class Poupador : ProgramaPoupador() {
         }
 
         return Point(moedaPosicaoX, estadoAtual.posicao.y + helper)
+
+    }
+
+    /**
+     * Função que atualiza o HashMap de lugares visitados do poupador. Se o poupador ja passou por aquele Point(x,y),
+     * então incrementa +1. Caso contrário, inicializa o contador de um determinado Point(x,y) com 1
+     *
+     * @param key lugar que o poupador vai passar
+     * */
+    private fun atualizarLugaresVisitados(key: Point) {
+
+        if(lugaresVisitados.containsKey(key)) {
+            lugaresVisitados[key] = lugaresVisitados.getValue(key).plus(1)
+        } else {
+            lugaresVisitados[key] = 1
+        }
 
     }
 

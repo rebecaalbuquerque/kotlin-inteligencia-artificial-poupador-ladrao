@@ -4,6 +4,7 @@ import algoritmo.SensoresPoupador
 import algoritmo.data.Estado
 import algoritmo.enums.Acao
 import algoritmo.enums.PercepcaoVisao
+import java.awt.Point
 
 fun SensoresPoupador.toEstado(): Estado {
 
@@ -72,7 +73,7 @@ fun Estado.visaoPoupadorDireita(): IntArray {
  * Função que retorna todos os elementos apenas da visão de baixo do poupador
  * */
 fun Estado.visaoPoupadorBaixo(): IntArray {
-    return visaoIdentificacao.drop(13).toIntArray()
+    return visaoIdentificacao.drop(14).toIntArray()
 }
 
 /**
@@ -107,4 +108,23 @@ fun Estado.getIndicesMoedas(): IntArray {
     indices.toMutableList().removeIf { it == Int.MAX_VALUE }
 
     return indices.toIntArray()
+}
+
+/**
+ * Simula qual vai ser a próxima posição Point(x,y) do agente baseando-se na ação que ele irá tomar
+ *
+ * @param acao que irá guiar no calculo da próxima posição
+ * */
+fun Estado.getProximaPosicao(acao: Acao) : Point {
+    val proximaPosicao = Point(posicao.x, posicao.y)
+
+    when (acao) {
+        Acao.FICAR_PARADO -> {}
+        Acao.MOVER_CIMA -> proximaPosicao.y--
+        Acao.MOVER_BAIXO -> proximaPosicao.y++
+        Acao.MOVER_DIREITA -> proximaPosicao.x++
+        Acao.MOVER_ESQUERDA -> proximaPosicao.x--
+    }
+
+    return proximaPosicao
 }
