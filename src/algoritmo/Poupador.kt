@@ -14,8 +14,6 @@ class Poupador : ProgramaPoupador() {
     private lateinit var estadoAtual: Estado
 
     // MEMORIA DO POUPADOR
-    // Moedas que o poupador vai encontrando ao longo do jogo
-    private val localizacaoMoedas: MutableList<Point> = mutableListOf()
     // Lugares e quantidade de vezes por onde o poupador passou
     private val lugaresVisitados: MutableMap<Point, Int> = mutableMapOf()
 
@@ -129,78 +127,6 @@ class Poupador : ProgramaPoupador() {
             MOVER_DIREITA -> lugaresVisitados[estadoAtual.getProximaPosicao(MOVER_DIREITA)] ?: 1
             MOVER_ESQUERDA -> lugaresVisitados[estadoAtual.getProximaPosicao(MOVER_ESQUERDA)] ?: 1
         }
-
-    }
-
-    private fun calcularCustoMoedasEncontradas(acao: Acao): Int {
-
-        return when (acao) {
-            FICAR_PARADO -> 0
-            MOVER_CIMA -> localizacaoMoedas.filter { it.y < estadoAtual.posicao.y }.size
-            MOVER_BAIXO -> localizacaoMoedas.filter { it.y > estadoAtual.posicao.y }.size
-            MOVER_DIREITA -> localizacaoMoedas.filter { it.x > estadoAtual.posicao.x }.size
-            MOVER_ESQUERDA -> localizacaoMoedas.filter { it.x < estadoAtual.posicao.x }.size
-        }.times(-1)
-
-    }
-
-    /**
-     * Atualiza na memória do poupador as moedas que ele vai encontrando e/ou coletando. Se ele encontrar novas moedas,
-     * elas são adicionadas na lista "localizacaoMoedas". Se ele coletar as moedas, elas são removidas da lista.
-     *
-     * @param acao variável que irá ajudar a calcular a próxima posição Point(X, Y) do poupador para poder determinar se
-     * existe moeda naquela posição. Se existir, a localização dela será removida da memória do poupador
-     * */
-    private fun atualizarMoedasEncontradas(acao: Acao) {
-        // Descobre qual vai ser a próxima posição do poupador
-        val proximaPosicao = estadoAtual.getProximaPosicao(acao)
-
-        // Adicionando localização das moedas encontradas pelo poupador através das percepções visuais
-        estadoAtual.getIndicesMoedas().forEach { indice ->
-            when (indice) {
-                in 0..4 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 0, 4, -2))
-
-                in 5..9 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 5, 9, -1))
-
-                in 10..14 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 10, 14, 0))
-
-                in 15..19 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 15, 19, 1))
-
-                in 20..24 -> localizacaoMoedas.addIfNonexistent(calcularPosicaoMoeda(indice, 20, 24, 2))
-            }
-        }
-
-        // Se na próxima posição do poupador existir uma moeda, ele a pegará, portanto essa moeda deverá ser removida
-        // da memória do poupador
-        localizacaoMoedas.removeIfExists(proximaPosicao)
-
-    }
-
-    /**
-     * Função auxiliar que calcula a posição da moeda que o poupador visualizou na sua percepção visual.
-     * O count é um valor auxiliar no cálculo da posição X da moeda e poderá ser -2, -1, 1 ou 2. Se for -2 é porque a
-     * moeda está a 2 posições a esquerda do poupador, se for -1 está a 1 posição a esquerda do poupador, se for 1 está
-     * a 1 posição a direita e se for 2 está a 2 posições a direita do poupador.
-     *
-     * @param indice é a posição/index em que a moeda está no IntArray da percepção visual do poupador
-     * @param from a partir de que indice/index está sendo feito o cálculo atual
-     * @param to até que indice/index está sendo feito o cálculo atual
-     * @param helper valor auxiliar no cálculo da posição Y da moeda, se for -2 significa que a moedas está 2 posições
-     * a cima do poupador, se for -1 a 1 posição acima, se for 0 a moeda está na mesma coluna, se for 1 está 1 posição a
-     * baixo e se for 2 a moeda está 2 posições abaixo do poupador.
-     *
-     * @return Point(x,Y) da moeda localizada no IntArray da percepção visual
-     * */
-    private fun calcularPosicaoMoeda(indice: Int, from: Int, to: Int, helper: Int): Point {
-        var count = -3
-        var moedaPosicaoX = 0
-
-        for(i in from..to) {
-            count++
-            if(indice == i) moedaPosicaoX = estadoAtual.posicao.x + count
-        }
-
-        return Point(moedaPosicaoX, estadoAtual.posicao.y + helper)
 
     }
 
