@@ -102,7 +102,7 @@ class Poupador : ProgramaPoupador() {
             percepcao.filter { it == PASTILHA_PODER.value }.size * PASTILHA_PODER.custo
         else
             0
-        val custoLadrao = percepcao.filter { it == LADRAO.value }.size * LADRAO.custo
+        val custoLadrao = percepcao.filter { it in LADRAO.value..230 step 10 }.size * LADRAO.custo
 
         return custoMoeda + custoBanco + custoPastilha + custoLadrao
     }
