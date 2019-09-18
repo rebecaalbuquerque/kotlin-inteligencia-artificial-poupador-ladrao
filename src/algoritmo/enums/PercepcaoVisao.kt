@@ -10,6 +10,12 @@ enum class PercepcaoVisao(val value: Int, val custo: Int) {
     MOEDA(4, -800),
     PASTILHA_PODER(5, -900),
     POUPADOR(100, -1),
-    LADRAO(200, 100000)
+    LADRAO(200, 100000);
+
+    companion object {
+        fun getByValue(i: Int): PercepcaoVisao {
+            return values().find { it.value == i } ?: SEM_VISAO
+        }
+    }
 
 }
